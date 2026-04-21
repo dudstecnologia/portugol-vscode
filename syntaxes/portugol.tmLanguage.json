@@ -1,0 +1,107 @@
+{
+  "name": "Portugol",
+  "scopeName": "source.portugol",
+  "fileTypes": ["alg", "por", "portugol"],
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#constants" },
+    { "include": "#functions" },
+    { "include": "#numbers" },
+    { "include": "#operators" },
+    { "include": "#identifiers" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.portugol",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.portugol",
+          "begin": "\\{",
+          "end": "\\}",
+          "patterns": []
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.portugol",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.portugol",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.portugol",
+          "match": "(?i)\\b(se|então|entao|senao|senão|fimse|enquanto|faca|faça|fimenquanto|para|ate|até|fimpara|repita|ate|fimrepita|escolha|caso|outrocaso|fimescolha|inicio|início|fim|retorne|interrompa|continue)\\b"
+        },
+        {
+          "name": "keyword.other.portugol",
+          "match": "(?i)\\b(algoritmo|fimalgoritmo|var|procedimento|fimprocedimento|funcao|função|fimfuncao|fimfunção|modulo|fimmodulo)\\b"
+        }
+      ]
+    },
+    "types": {
+      "name": "storage.type.portugol",
+      "match": "(?i)\\b(inteiro|real|caractere|logico|lógico|vetor|matriz|registro|fimregistro)\\b"
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.portugol",
+          "match": "(?i)\\b(verdadeiro|falso|nulo)\\b"
+        }
+      ]
+    },
+    "functions": {
+      "name": "support.function.portugol",
+      "match": "(?i)\\b(escreva|escreval|leia|limpatela|limpa_tela|int|real|caracpara|compr|copia|maiuscula|minuscula|pos|asc|carac|raizq|pi|sen|cos|tan|abs|exp|log|logn|potencia|quad|arredonda|trunca|mod|div|aleatorio|hora|hoje|numpcarac|verdadeiro|falso|interrompa)(?=\\s*\\(|\\s+)"
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.float.portugol",
+          "match": "\\b[0-9]+\\.[0-9]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.portugol",
+          "match": "\\b[0-9]+\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.logical.portugol",
+          "match": "(?i)\\b(e|ou|nao|não|xou)\\b"
+        },
+        {
+          "name": "keyword.operator.comparison.portugol",
+          "match": "(<=|>=|<>|<|>|=)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.portugol",
+          "match": "(\\+|-|\\*|/|%|\\^|\\\\)"
+        },
+        {
+          "name": "keyword.operator.assignment.portugol",
+          "match": "<-|:="
+        }
+      ]
+    },
+    "identifiers": {
+      "name": "variable.other.portugol",
+      "match": "\\b[a-zA-ZÀ-ú_][a-zA-ZÀ-ú0-9_]*\\b"
+    }
+  }
+}

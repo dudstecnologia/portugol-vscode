@@ -1,0 +1,145 @@
+{
+  "Algoritmo Base": {
+    "prefix": ["algoritmo", "alg"],
+    "body": [
+      "algoritmo \"${1:NomeDoAlgoritmo}\"",
+      "var",
+      "   ${2:// declare suas variáveis aqui}",
+      "inicio",
+      "   ${3:// seu código aqui}",
+      "fimalgoritmo"
+    ],
+    "description": "Estrutura base de um algoritmo Portugol"
+  },
+  "Variável Inteiro": {
+    "prefix": "vari",
+    "body": ["${1:nome} : inteiro"],
+    "description": "Declaração de variável inteira"
+  },
+  "Variável Real": {
+    "prefix": "varr",
+    "body": ["${1:nome} : real"],
+    "description": "Declaração de variável real"
+  },
+  "Variável Caractere": {
+    "prefix": "varc",
+    "body": ["${1:nome} : caractere"],
+    "description": "Declaração de variável caractere"
+  },
+  "Variável Lógico": {
+    "prefix": "varl",
+    "body": ["${1:nome} : logico"],
+    "description": "Declaração de variável lógica"
+  },
+  "Se-Então": {
+    "prefix": ["se", "if"],
+    "body": [
+      "se (${1:condição}) então",
+      "   ${2:// código}",
+      "fimse"
+    ],
+    "description": "Estrutura condicional se-então"
+  },
+  "Se-Então-Senão": {
+    "prefix": ["sees", "ifelse"],
+    "body": [
+      "se (${1:condição}) então",
+      "   ${2:// código se verdadeiro}",
+      "senão",
+      "   ${3:// código se falso}",
+      "fimse"
+    ],
+    "description": "Estrutura condicional se-então-senão"
+  },
+  "Enquanto": {
+    "prefix": ["enquanto", "while"],
+    "body": [
+      "enquanto (${1:condição}) faça",
+      "   ${2:// código}",
+      "fimenquanto"
+    ],
+    "description": "Laço enquanto"
+  },
+  "Para": {
+    "prefix": ["para", "for"],
+    "body": [
+      "para ${1:i} de ${2:1} ate ${3:10} faça",
+      "   ${4:// código}",
+      "fimpara"
+    ],
+    "description": "Laço para"
+  },
+  "Repita": {
+    "prefix": "repita",
+    "body": [
+      "repita",
+      "   ${1:// código}",
+      "ate (${2:condição})"
+    ],
+    "description": "Laço repita-até"
+  },
+  "Escolha-Caso": {
+    "prefix": ["escolha", "switch"],
+    "body": [
+      "escolha (${1:variável})",
+      "   caso ${2:valor1}",
+      "      ${3:// código}",
+      "   caso ${4:valor2}",
+      "      ${5:// código}",
+      "   outrocaso",
+      "      ${6:// código padrão}",
+      "fimescolha"
+    ],
+    "description": "Estrutura escolha-caso"
+  },
+  "Escreva": {
+    "prefix": "esc",
+    "body": ["escreva(\"${1:mensagem}\")"],
+    "description": "Escreve sem quebra de linha"
+  },
+  "Escreval": {
+    "prefix": "escl",
+    "body": ["escreval(\"${1:mensagem}\")"],
+    "description": "Escreve com quebra de linha"
+  },
+  "Leia": {
+    "prefix": "leia",
+    "body": ["leia(${1:variável})"],
+    "description": "Lê entrada do usuário"
+  },
+  "Procedimento": {
+    "prefix": ["proc", "procedimento"],
+    "body": [
+      "procedimento ${1:NomeProcedimento}(${2:parâmetros})",
+      "var",
+      "   ${3:// variáveis locais}",
+      "inicio",
+      "   ${4:// código}",
+      "fimprocedimento"
+    ],
+    "description": "Declaração de procedimento"
+  },
+  "Função": {
+    "prefix": ["func", "funcao"],
+    "body": [
+      "funcao ${1:NomeFuncao}(${2:parâmetros}) : ${3:inteiro}",
+      "var",
+      "   ${4:// variáveis locais}",
+      "inicio",
+      "   ${5:// código}",
+      "   retorne ${6:valor}",
+      "fimfuncao"
+    ],
+    "description": "Declaração de função"
+  },
+  "Vetor": {
+    "prefix": "vetor",
+    "body": ["${1:nome} : vetor[${2:1}..${3:10}] de ${4:inteiro}"],
+    "description": "Declaração de vetor"
+  },
+  "Matriz": {
+    "prefix": "matriz",
+    "body": ["${1:nome} : vetor[${2:1}..${3:3}, ${4:1}..${5:3}] de ${6:inteiro}"],
+    "description": "Declaração de matriz"
+  }
+}

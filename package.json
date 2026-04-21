@@ -1,0 +1,129 @@
+{
+  "name": "portugol-visualg-vscode",
+  "displayName": "Portugol - VisuAlg",
+  "description": "Suporte completo ao Portugol/VisuAlg no VS Code: syntax highlighting, interpretador, autocomplete e muito mais.",
+  "version": "1.0.0",
+  "publisher": "DudsTecnologia",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Programming Languages", "Education", "Debuggers"],
+  "keywords": ["portugol", "visualg", "algoritmo", "lógica", "português"],
+  "icon": "images/icon.png",
+  "activationEvents": ["onLanguage:portugol"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "portugol",
+        "aliases": ["Portugol", "VisuAlg"],
+        "extensions": [".alg", ".por", ".portugol"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "portugol",
+        "scopeName": "source.portugol",
+        "path": "./syntaxes/portugol.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "portugol",
+        "path": "./snippets/portugol.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "portugol.run",
+        "title": "▶ Executar Algoritmo",
+        "category": "Portugol",
+        "icon": "$(play)"
+      },
+      {
+        "command": "portugol.stop",
+        "title": "⏹ Parar Execução",
+        "category": "Portugol",
+        "icon": "$(stop)"
+      },
+      {
+        "command": "portugol.showVariables",
+        "title": "Mostrar Variáveis",
+        "category": "Portugol",
+        "icon": "$(symbol-variable)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "portugol.run",
+          "when": "resourceLangId == portugol",
+          "group": "navigation"
+        },
+        {
+          "command": "portugol.stop",
+          "when": "resourceLangId == portugol",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "portugol.run",
+          "when": "resourceLangId == portugol",
+          "group": "portugol"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "portugol.run",
+        "key": "F5",
+        "when": "resourceLangId == portugol"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "portugol-sidebar",
+          "title": "Portugol",
+          "icon": "$(symbol-misc)"
+        }
+      ]
+    },
+    "views": {
+      "portugol-sidebar": [
+        {
+          "id": "portugol.variablesView",
+          "name": "Variáveis",
+          "type": "webview"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Portugol",
+      "properties": {
+        "portugol.showVariablesPanel": {
+          "type": "boolean",
+          "default": true,
+          "description": "Mostrar painel de variáveis durante execução"
+        },
+        "portugol.fontSize": {
+          "type": "number",
+          "default": 14,
+          "description": "Tamanho da fonte no terminal de saída"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  }
+}
