@@ -6,8 +6,10 @@ import { Interpreter, InterpreterIO } from './interpreter/interpreter';
 import { PortugolCompletionProvider } from './providers/completionProvider';
 import { PortugolFormattingProvider } from './providers/formattingProvider';
 import { VariablesPanel } from './panels/variablesPanel';
+import { PortugolPty } from './terminal/portugolPty';
 
-let terminal: vscode.Terminal | undefined;
+let currentTerminal: vscode.Terminal | undefined;
+let currentPty: PortugolPty | undefined;
 let currentInterpreter: Interpreter | undefined;
 let variablesPanel: VariablesPanel | undefined;
 let diagnosticCollection: vscode.DiagnosticCollection;
@@ -83,7 +85,6 @@ export function activate(context: vscode.ExtensionContext) {
 // ─── Validação (diagnósticos) ──────────────────────────────────────────────
 
 function validateDocument(document: vscode.TextDocument) {
-  const diagnostics: vscode.Diagnostic[] = [];
   const text = document.getText();
 
   try {
@@ -102,8 +103,9 @@ function validateDocument(document: vscode.TextDocument) {
       new vscode.Position(Math.max(0, line), 999)
     );
 
-    diagnostics.push(new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error));
-    diagnosticCollection.set(document.uri, diagnostics);
+    diagnosticCollection.set(document.uri, [
+      new vscode.Diagnostic(range, message, vscode.DiagnosticSeverity.Error)
+    ]);
   }
 }
 
@@ -116,80 +118,33 @@ async function runAlgorithm(context: vscode.ExtensionContext) {
     return;
   }
 
+  // Parar execução anterior, se houver
+  if (currentInterpreter) {
+    currentPty?.stop();
+    currentInterpreter.stop();
+    currentInterpreter = undefined;
+  }
+
   await editor.document.save();
   const code = editor.document.getText();
 
-  // Mostrar painel de variáveis
   variablesPanel?.show(context);
 
-  // Criar/reutilizar terminal
-  if (!terminal || terminal.exitStatus !== undefined) {
-    terminal = vscode.window.createTerminal({
-      name: 'Portugol',
-      isTransient: false,
-    });
-  }
-  terminal.show(true);
+  // Criar novo PTY e terminal para esta execução
+  currentPty?.dispose();
+  currentTerminal?.dispose();
 
-  // Fila de inputs do usuário
-  const inputQueue: string[] = [];
-  const inputResolvers: ((value: string) => void)[] = [];
-
-  // Capturar inputs via InputBox
-  async function readInput(): Promise<string> {
-    return new Promise(resolve => {
-      vscode.window.showInputBox({
-        prompt: 'Digite um valor:',
-        placeHolder: 'Pressione Enter para confirmar',
-        ignoreFocusOut: true,
-      }).then(value => {
-        const input = value ?? '';
-        if (process.platform === 'win32') {
-          const escaped = input.replace(/`/g, '``').replace(/"/g, '`"').replace(/\$/g, '`$');
-          terminal?.sendText(`Write-Host "  -> ${escaped}"`, true);
-        } else {
-          const escaped = input.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-          terminal?.sendText(`printf "  -> %s\\n" "${escaped}"`, true);
-        }
-        resolve(input);
-      });
-    });
-  }
-
-  const isWindows = process.platform === 'win32';
-
-  function escapeForTerminal(text: string): string {
-    if (isWindows) {
-      return text.replace(/`/g, '``').replace(/"/g, '`"').replace(/\$/g, '`$');
-    } else {
-      return text.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-    }
-  }
+  const pty = new PortugolPty();
+  currentPty = pty;
+  currentTerminal = vscode.window.createTerminal({ name: 'Portugol', pty });
+  currentTerminal.show(true);
 
   const io: InterpreterIO = {
-    write: (text: string) => {
-      const escaped = escapeForTerminal(text);
-      if (isWindows) {
-        terminal?.sendText(`Write-Host -NoNewline "${escaped}"`, true);
-      } else {
-        terminal?.sendText(`printf "%s" "${escaped}"`, true);
-      }
-    },
-    writeln: (text: string) => {
-      const escaped = escapeForTerminal(text);
-      if (isWindows) {
-        terminal?.sendText(`Write-Host "${escaped}"`, true);
-      } else {
-        terminal?.sendText(`printf "%s\\n" "${escaped}"`, true);
-      }
-    },
-    read: readInput,
-    clear: () => {
-      vscode.commands.executeCommand('workbench.action.terminal.clear');
-    },
-    onVariablesUpdate: (vars) => {
-      variablesPanel?.update(vars);
-    },
+    write: (text) => pty.write(text),
+    writeln: (text) => pty.writeln(text),
+    read: () => pty.read(),
+    clear: () => pty.clear(),
+    onVariablesUpdate: (vars) => variablesPanel?.update(vars),
   };
 
   try {
@@ -200,30 +155,34 @@ async function runAlgorithm(context: vscode.ExtensionContext) {
 
     currentInterpreter = new Interpreter(io);
 
-    terminal.sendText('echo ""', true);
-    terminal.sendText(`echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"`, true);
-    terminal.sendText(`echo "    Algoritmo: ${ast.name}"`, true);
-    terminal.sendText(`echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"`, true);
-    terminal.sendText('echo ""', true);
+    await pty.ready;
+
+    pty.writeln('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    pty.writeln(`    Algoritmo: ${ast.name}`);
+    pty.writeln('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    pty.writeln('');
 
     await currentInterpreter.run(ast);
 
-    terminal.sendText('echo ""', true);
-    terminal.sendText(`echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"`, true);
-    terminal.sendText(`echo "    Execução concluída"`, true);
-    terminal.sendText(`echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"`, true);
+    pty.writeln('');
+    pty.writeln('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    pty.writeln('    Execução concluída');
+    pty.writeln('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
   } catch (err: any) {
     const msg = err.message || 'Erro desconhecido';
-    terminal.sendText('echo ""', true);
-    terminal.sendText(`echo "ERRO: ${msg}"`, true);
-    vscode.window.showErrorMessage(`Erro ao executar: ${msg}`);
+    if (!msg.includes('interrompida')) {
+      pty.writeln('');
+      pty.writeln(`ERRO: ${msg}`);
+      vscode.window.showErrorMessage(`Erro ao executar: ${msg}`);
+    }
   } finally {
     currentInterpreter = undefined;
   }
 }
 
 function stopAlgorithm() {
+  currentPty?.stop();
   if (currentInterpreter) {
     currentInterpreter.stop();
     currentInterpreter = undefined;
@@ -232,7 +191,8 @@ function stopAlgorithm() {
 }
 
 export function deactivate() {
-  terminal?.dispose();
+  currentPty?.dispose();
+  currentTerminal?.dispose();
   variablesPanel?.dispose();
   diagnosticCollection.clear();
 }

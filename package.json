@@ -2,7 +2,7 @@
   "name": "portugol-visualg-vscode",
   "displayName": "Portugol - VisuAlg",
   "description": "Suporte completo ao Portugol/VisuAlg no VS Code: syntax highlighting, interpretador, autocomplete e muito mais.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "DudsTecnologia",
   "engines": { "vscode": "^1.85.0" },
   "categories": ["Programming Languages", "Education", "Debuggers"],
